@@ -20,28 +20,29 @@ void CSegWayNavigator::aStarSearch(const unsigned int startIdx, const unsigned i
 	const auto targetPos = mMap.getPosFromIdx(targetIdx);
 	while (!frontier.empty())
 	{
-		unsigned int curIdx = frontier.top().second;
+		const unsigned int curIdx = frontier.top().second;
 		frontier.pop();
+
+		const int newCost = costs[curIdx] + 1;
 
 		if (curIdx == targetIdx)
 			break;
-
-		for (auto nextPosIdx : mMap.neighborIndices(curIdx))
+		
+		for (auto nextPosIdx : mMap.neighborIndices4(curIdx))
 		{
-			if (!mMap.isPassable(nextPosIdx))
-				continue;
-
-			int newCost = costs[curIdx] + 1;
-			if (!costs.count(nextPosIdx) || newCost < costs[nextPosIdx])
+			if (mMap.isPassable(nextPosIdx))
 			{
-				const auto diff = mMap.getPosFromIdx(nextPosIdx) - targetPos;
-				const float h = fabs(diff.x) + fabs(diff.y);
+				const auto costsOfNeighbor = costs.find(nextPosIdx);
+				if ( (costsOfNeighbor==costs.cend()) || (newCost < costsOfNeighbor->second) )
+				{
+					const auto diff = mMap.getPosFromIdx(nextPosIdx) - targetPos;
+					const float h = fabs(diff.x) + fabs(diff.y);
 
-				frontier.emplace(std::make_pair(newCost + h, nextPosIdx));
+					frontier.emplace(std::make_pair(newCost + h, nextPosIdx));
 
-				costs[nextPosIdx] = newCost;
-				pathMap[nextPosIdx] = curIdx;
-
+					costs[nextPosIdx] = newCost;
+					pathMap[nextPosIdx] = curIdx;
+				}
 			}
 		}
 	}
@@ -53,7 +54,9 @@ CSegWayNavigator::CSegWayNavigator(unsigned int w, unsigned int h)
 
 void CSegWayNavigator::onIdxNotPassable(unsigned int idx)
 {
-	mMap.mBlocked.insert(idx);
+	mMap.mBlocked[idx].mTime = mMap.mClock.getElapsedTime()+sf::seconds(10+(rand()%20));
+	mMap.mBlocked[idx].mVisited += 1;
+
 	mMap.mBlockedToDraw.push_back(idx);
 }
 

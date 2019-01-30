@@ -31,8 +31,9 @@ void CSegWay::update(float deltaTime)
 		auto pos = mNavi.mPath[mPathIndex];
 
 		const auto idx = mNavi.mMap.getIdxFromPos(pos);
-		if (mBlocked.count(idx) == 0)
+		if ((mBlocked.count(idx) == 0) || mNavi.mMap.isExpired(idx))
 		{
+			//no obstacle so move to next pixel
 			mSegWayShape.setPosition(pos);
 
 			if (mRemovePassedPath)
@@ -42,6 +43,11 @@ void CSegWay::update(float deltaTime)
 			}
 
 			break;
+		}
+		else if(mNavi.mMap.isExpired(idx))
+		{
+			//obstacle is expired so remove it and move
+
 		}
 
 		mNavi.onIdxNotPassable(idx);

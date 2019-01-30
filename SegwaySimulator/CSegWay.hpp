@@ -18,6 +18,7 @@ public:
 
 	CSegWayNavigator mNavi;
 	std::unordered_set<unsigned int> mBlocked;
+	std::vector<sf::RectangleShape> mObstacles;
 
 public:
 	CSegWay();

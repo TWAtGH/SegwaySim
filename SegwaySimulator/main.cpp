@@ -47,6 +47,8 @@ void fillCell(sf::RenderWindow &window, sf::Uint32 x, sf::Uint32 y, const sf::Co
 
 int main()
 {
+	srand(static_cast<unsigned int>(time(nullptr)));
+
 	sf::ContextSettings settings;
 	//settings.antialiasingLevel = 8;
 
@@ -63,7 +65,6 @@ int main()
 	pendingLine[1].color = sf::Color::Black;
 
 	sf::VertexArray walls(sf::Lines);
-	std::vector<sf::RectangleShape> obstacles;
 	sf::Vector2i lastObstaclePos;
 
 	CSegWay segWay;
@@ -95,7 +96,7 @@ int main()
 				else if (event.key.code == sf::Keyboard::R)
 				{
 					segWay = CSegWay();
-					obstacles.clear();
+					segWay.mObstacles.clear();
 				}
 			}
 			else if (event.type == sf::Event::MouseButtonPressed)
@@ -104,7 +105,7 @@ int main()
 				if (mb.button == sf::Mouse::Left)
 				{
 					isMouseLeftDown = true;
-					if (obstacles.size() == 0)
+					if (segWay.mObstacles.size() == 0)
 					{
 						lastObstaclePos = sf::Vector2i(mb.x, mb.y);
 						sf::RectangleShape obstacle(sf::Vector2f(GRID_CELL_SIZE, GRID_CELL_SIZE)*2.f);
@@ -112,7 +113,7 @@ int main()
 						const float y = static_cast<float>(mb.y);
 						obstacle.setPosition(x, y);
 						obstacle.setFillColor(sf::Color::Black);
-						obstacles.push_back(obstacle);
+						segWay.mObstacles.push_back(obstacle);
 
 						const float GS2 = GRID_CELL_SIZE * 2.f;
 						auto &allBlocks = segWay.mBlocked;
@@ -177,7 +178,7 @@ int main()
 						lastObstaclePos = sf::Vector2i(x, y);
 						obstacle.setPosition(x, y);
 						obstacle.setFillColor(sf::Color::Black);
-						obstacles.push_back(obstacle);
+						segWay.mObstacles.push_back(obstacle);
 
 						const int GS2 = static_cast<int>(GRID_CELL_SIZE * 2.f);
 						auto &allBlocks = segWay.mBlocked;
@@ -249,7 +250,7 @@ int main()
 		if (isMouseLeftDown)
 			window.draw(pendingLine, 2, sf::Lines);
 
-		for (const auto &obstacle : obstacles)
+		for (const auto &obstacle : segWay.mObstacles)
 			window.draw(obstacle);
 
 		// last draw segway
